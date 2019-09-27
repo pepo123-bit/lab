@@ -1,0 +1,1696 @@
+1 | Page
+VALLIAMMAI
+ENGINEERING COLLEGE
+SRM Nagar, Kattankulathur-603203
+Department of
+Computer Science and Engineering
+Lab Manual
+CS6711- Security Lab
+(VII Semester)
+Prepared By
+Ms. N. Poornima, Asst. Professor
+Mr. T. Rajasekaran, Asst. Professor
+2 | Page
+CS6711 SECURITY LABORATORY L T P C
+0 0 3 2
+OBJECTIVES:
+The student should be made to:
+• Be exposed to the different cipher techniques
+• Learn to implement the algorithms DES, RSA,MD5,SHA-1
+• Learn to use network security tools like GnuPG, KF sensor, Net Stumbler
+LIST OF EXPERIMENTS:
+1. Implement the following SUBSTITUTION & TRANSPOSITION TECHNIQUES concepts:
+a) Caesar Cipher
+b) Playfair Cipher
+c) Hill Cipher
+d) Vigenere Cipher
+e) Rail fence – row & Column Transformation
+2. Implement the following algorithms
+a) DES
+b) RSA Algorithm
+c) Diffiee-Hellman
+d) MD5
+e) SHA-1
+3. Implement the SIGNATURE SCHEME - Digital Signature Standard
+4. Demonstrate how to provide secure data storage, secure data transmission and for creating digital
+signatures (GnuPG).
+5. Setup a honey pot and monitor the honeypot on network (KF Sensor)
+6. Installation of root kits and study about the variety of options
+7. Perform wireless audit on an access point or a router and decrypt WEP and WPA (Net Stumbler)
+8. Demonstrate intrusion detection system (ids) using any tool (snort or any other s/w)
+TOTAL: 45 PERIODS
+OUTCOMES:
+At the end of the course, the student should be able to
+• Implement the cipher techniques
+• Develop the various security algorithms
+• Use different open source tools for network security and analysis
+3 | Page
+INDEX
+S.NO NAME OF THE EXERCISE PAGE No.
+1 1(a) CAESAR CIPHER 4
+2 1(b) PLAYFAIR CIPHER 6
+3 1(c) HILL CIPHER 10
+4 1(d) VIGENERE CIPHER 15
+5 1(e) RAIL FENCE 17
+6 2(a) DES 20
+7 2(b) RSA ALGORITHM 24
+8 2(c) DIFFIEE-HELLMAN 27
+9 2(d) MD5 29
+10 2(e) SHA-1 31
+11 3) DIGITAL SIGNATURE STANDARD 34
+12 4) GNUPG 38
+13 5) HONEYPOT 56
+14 6) ROOT KITS 62
+15 7) WEP AND WPA 64
+16 8) INTRUSION DETECTION SYSTEM 66
+BEYOND THE SYLLABUS
+17 9) ADVANCED ENCRYPTION STANDARDS 68
+4 | Page
+EX.No.:1(a) CAESAR CIPHER
+AIM:
+To write a JAVA a program for encrypting a plain text and decrypting a cipher text using
+Caesar Cipher (shift cipher) substitution technique.
+ALGORITHM:
+1. Start the program.
+2. Initialize the variable.
+3. Caesar cipher (shift cipher) is a simple substitution cipher based on a replacement of
+every single character of the plain text with a character, which is located fixed number of
+positions down the alphabet. For example, with a right shift of 3, A would be replaced by D,
+B would be replaced by E, and so on.
+4. The alphabet is shifted by an arbitrary number of positions. The number of positions is the
+key-value. ABCDEFGHIJKLMNOPQRSTUVWXYZ. Using key value as 3 the alphabet is
+shifted towards right yields the result: DEFGHIJKLMNOPQRSTUVWXYZABC.
+5. The encryption can also be represented using modular arithmetic by transforming the letters
+into numbers, according to the scheme, A = 0, B = 1, Z = 25.
+6. Encryption of a letter X by a shift(key) N can be described mathematically as,
+EN(X) = (X + N) % 26
+Decryption is described similarly,
+DN (X)=(X - N) % 26
+7. Stop.
+PROGRAM:
+import java.util.Scanner;
+public class CaesarCipher
+{
+public static final String alpha="abcdefghijklmnopqrstuvwxyz";
+public static String encrypt(String pt,int key) // encryption algorithm
+{
+pt=pt.toLowerCase();
+String ct="";
+for(int i=0;i<pt.length();i++)
+{
+int charPos=alpha.indexOf(pt.charAt(i)); // to find the alphabet position
+int keyVal=(key+charPos)%26;
+char replaceVal=alpha.charAt(keyVal);
+ct=ct+replaceVal;
+}
+return ct;
+}
+5 | Page
+public static String decrypt(String ct,int key) // decryption algorithm
+{
+ct=ct.toLowerCase();
+String pt="";
+for(int i=0;i<ct.length();i++)
+{
+int charPos=alpha.indexOf(ct.charAt(i)); // find the alphabet position
+int keyVal=(charPos-key)%26;
+if(keyVal < 0)
+{
+keyVal=alpha.length()+keyVal;
+}
+char replaceVal=alpha.charAt(keyVal);
+pt=pt+replaceVal;
+}
+return pt;
+}
+public static void main(String[] args)
+{
+Scanner sc=new Scanner(System.in);
+System.out.println("Enter the string for encryption : ");
+String msg=sc.nextLine();
+System.out.println("Enter key value : ");
+int key=sc.nextInt();
+System.out.println("Cyphertext: ");
+System.out.println(encrypt(msg,key));
+System.out.println("Plaintext: ");
+System.out.println(decrypt(encrypt(msg,key),key));
+}
+}
+OUTPUT:
+C:\javaprg>javac CaesarCipher.java
+C:\javaprg>java CaesarCipher
+Enter the string for encryption: THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG
+Enter key value: 3
+Cyphertext : wkhtxlfneurzqiramxpsvryhuwkhodcbgrj
+Plaintext : thequickbrownfoxjumpsoverthelazydog
+RESULT:
+Thus the program for encrypting and decrypting the Caesar Cipher has been executed
+successfully and the output was verified.
+6 | Page
+EX.No.:1(b) PLAY FAIR CIPHER
+AIM:
+To implement a program to encrypt a plain text and decrypt a cipher text using play fair
+Cipher substitution technique.
+ALGORITHM:
+1. Start
+2. The Playfair cipher uses a 5 X 5 table containing a keyword. Pick a keyword that does not
+contain any letter more than once.
+3. To generate the key table, first fill the table with the letters of the keyword (in the top rows of
+the table, from left to right, or in some other pattern), and then fill the remaining boxes with
+the rest of the letters of the alphabet in order. (Write both "I" and "J" in the same box).
+4. To encrypt a message, break the message into diagrams (groups of 2 letters) such that, for
+example, "HelloWorld" becomes "HE LL OW OR LD", and map them out on the key table.
+Then apply the following 4 rules, to each pair of letters in the plaintext:
+5. If both letters are the same (or only one letter is left), add an "X" after the first letter. Encrypt
+the new pair and continue.
+6. If the letters appear on the same row of your table, replace them with the letters to their
+immediate right respectively (wrapping around to the left side of the row if a letter in the
+original pair was on the right side of the row).
+7. If the letters appear on the same column of your table, replace them with the letters
+immediately below respectively (wrapping around to the top side of the column if a letter in
+the original pair was on the bottom side of the column).
+8. If the letters are not on the same row or column, replace them with the letters on the same row
+respectively but at the other pair of corners of the rectangle defined by the original pair. The
+order is important – the first letter of the encrypted pair is the one that lies on the same row as
+the first letter of the plaintext pair.
+9. To decrypt, use the INVERSE (opposite) of the last 3 rules, and the 1st as-is (dropping any
+extra "X"s that do not make sense in the final message when finished).
+10. Stop.
+7 | Page
+PROGRAM:
+import java.awt.Point;
+import java.util.Scanner;
+public class PlayfairCipher
+{
+private static char[][] charTable;
+private static Point[] positions;
+public static void main(String[] args)
+{
+Scanner sc = new Scanner(System.in);
+String key = prompt("Enter an encryption key (min length 6): ",sc, 6);
+String txt = prompt("Enter the message: ", sc, 1);
+String jti = prompt("Replace J with I? (y/n): ", sc, 1);
+boolean changeJtoI = jti.equalsIgnoreCase("y");
+createTable(key, changeJtoI);
+String enc = encode(prepareText(txt, changeJtoI));
+System.out.printf("%nEncoded message: %n%s%n", enc);
+System.out.printf("%nDecoded message: %n%s%n", decode(enc));
+}
+private static String prompt(String promptText, Scanner sc, int minLen)
+{
+String s;
+do {
+System.out.print(promptText);
+s = sc.nextLine().trim();
+} while (s.length() < minLen);
+return s;
+}
+private static String prepareText(String s, boolean changeJtoI)
+{
+s = s.toUpperCase().replaceAll("[^A-Z]", "");
+return changeJtoI ? s.replace("J", "I") : s.replace("Q", "");
+}
+private static void createTable(String key, boolean changeJtoI)
+{
+charTable = new char[5][5];
+positions = new Point[26];
+String s = prepareText(key + "ABCDEFGHIJKLMNOPQRSTUVWXYZ", changeJtoI);
+int len = s.length();
+for (int i = 0, k = 0; i < len; i++)
+{
+char c = s.charAt(i);
+if (positions[c - 'A'] == null)
+{
+charTable[k / 5][k % 5] = c;
+8 | Page
+positions[c - 'A'] = new Point(k % 5, k / 5);
+k++;
+}
+}
+}
+private static String encode(String s)
+{
+StringBuilder sb = new StringBuilder(s);
+for (int i = 0; i < sb.length(); i += 2)
+{
+if (i == sb.length() - 1)
+sb.append(sb.length() % 2 == 1 ? 'X' : "");
+else if (sb.charAt(i) == sb.charAt(i + 1))
+sb.insert(i + 1, 'X');
+}
+return codec(sb, 1);
+}
+private static String decode(String s)
+{
+return codec(new StringBuilder(s), 4);
+}
+private static String codec(StringBuilder text, int direction)
+{
+int len = text.length();
+for (int i = 0; i < len; i += 2)
+{
+char a = text.charAt(i);
+char b = text.charAt(i + 1);
+int row1 = positions[a - 'A'].y;
+int row2 = positions[b - 'A'].y;
+int col1 = positions[a - 'A'].x;
+int col2 = positions[b - 'A'].x;
+if (row1 == row2)
+{
+col1 = (col1 + direction) % 5;
+col2 = (col2 + direction) % 5;
+}
+else if (col1 == col2)
+{
+row1 = (row1 + direction) % 5;
+row2 = (row2 + direction) % 5;
+}
+9 | Page
+else
+{
+int tmp = col1;
+col1 = col2;
+col2 = tmp;
+}
+text.setCharAt(i, charTable[row1][col1]);
+text.setCharAt(i + 1, charTable[row2][col2]);
+}
+return text.toString();
+}
+}
+OUTPUT:
+C:\javaprg>javac PlayfairCipher.java Key Matrix
+C:\javaprg>java PlayfairCipher
+Enter an encryption key (min length 6): keyword
+Enter the message: Why don't you?
+Replace J with I? y/n: y
+Encoded message: YIEAESVKEZ
+Decoded message: WHYDONTYOU
+RESULT:
+Thus the program to encrypt a plain text and decrypt a cipher text using play fair Cipher
+substitution technique was executed successfully and the output was verified.
+K E Y W O
+R D A B C
+F G H I/J L
+M N P Q S
+T U V X Z
+10 | Page
+EX.No.:1(c) HILL CIPHER
+AIM:
+To write a JAVA program to encrypt and decrypt using the Hill cipher substitution
+technique.
+ALGORITHM:
+1. Start
+2. Each letter is represented by a number modulo 26. To encrypt a message, each block of n
+letters is multiplied by an invertible n × n matrix, and modulus 26.
+C=E(K,P)=PK mod 26
+3. To decrypt the message, each block is multiplied by the inverse of the matrix used for
+encryption. The matrix used for encryption is the cipher key, and it should be chosen
+randomly from the set of invertible n × n matrices (modulo 26).
+P=D(K,C)=CK-1 mod 26
+4. Stop.
+PROGRAM:
+//File name: HillCipher.java
+import java.util.*;
+class Basic
+{
+String alpha="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+int indexOfChar(char c)
+{
+for(int i=0;i < alpha.length();i++)
+{
+if(alpha.charAt(i)==c)
+return i;
+}
+return -1;
+}
+char charAtIndex(int pos)
+{
+return alpha.charAt(pos);
+}
+}
+class Hill
+{
+Hill(int block)
+{
+this.block=block;
+}
+11 | Page
+Basic b1=new Basic();
+int block=3;
+int key[][]=new int[block][block];
+void keyInsert()
+{
+Scanner scn=new Scanner(System.in);
+System.out.println("Enter key Matrix (It should be inversible)");
+for(int i=0;i<block;i++)
+{
+for(int j=0;j<block;j++)
+{
+key[i][j]=scn.nextInt();
+}
+}
+}
+void KeyInverseInsert()
+{
+Scanner scn=new Scanner(System.in);
+System.out.println("Enter key Inverse Matrix:");
+for(int i=0;i<block;i++)
+{
+for(int j=0;j<block;j++)
+{
+key[i][j]=scn.nextInt();
+}
+}
+}
+String encryptBlock(String plain)
+{
+plain=plain.toUpperCase();
+int a[][]=new int[block][1],sum=0;
+int cipherMatrix[][]=new int[block][1];
+String cipher="";
+for(int i=0;i<block;i++)
+{
+a[i][0]=b1.indexOfChar(plain.charAt(i));
+}
+for(int i=0;i<block;i++) {
+for(int j=0;j<1;j++) {
+for(int k=0;k<block;k++) {
+sum=sum+key[i][k]*a[k][j];
+}
+cipherMatrix[i][j] = sum%26;
+sum = 0;
+}
+}
+12 | Page
+for(int i=0;i<block;i++)
+{
+cipher+=b1.charAtIndex(cipherMatrix[i][0]);
+}
+return cipher;
+}
+String encrypt(String plaintext)
+{
+String ciphertext="";
+keyInsert();
+plaintext=plaintext.toUpperCase();
+int len=plaintext.length();
+// System.out.println(plaintext.substring(1,2+1));
+while(len%block!=0)
+{
+plaintext+="X";
+System.out.println(len);
+len=plaintext.length();
+}
+for(int i=0;i < len-1;i=i+block)
+{
+ciphertext+=encryptBlock(plaintext.substring(i,i+block));
+ciphertext+=" ";
+}
+return ciphertext;
+}
+String decryptBlock(String cipher)
+{
+cipher=cipher.toUpperCase();
+int a[][]=new int[block][1],sum=0;
+int plainMatrix[][]=new int[block][1];
+String plain="";
+for(int i=0;i<block;i++)
+{
+a[i][0]=b1.indexOfChar(cipher.charAt(i));
+}
+for(int i=0;i<block;i++)
+{
+for(int j=0;j<1;j++)
+{
+for(int k=0;k<block;k++)
+{
+sum=sum+key[i][k]*a[k][j];
+}
+while(sum < 0)
+{
+sum+=26;
+}
+13 | Page
+plainMatrix[i][j] = sum;
+sum = 0;
+}
+}
+for(int i=0;i < block;i++)
+{
+plain+=b1.charAtIndex(plainMatrix[i][0]);
+}
+return plain;
+}
+String Decrypt(String ciphertext)
+{
+String plaintext="";
+KeyInverseInsert();
+ciphertext=ciphertext.replaceAll(" ", "");
+ciphertext=ciphertext.toUpperCase();
+int len=ciphertext.length();
+for(int i=0;i<len-1;i=i+block)
+{
+plaintext+=decryptBlock(ciphertext.substring(i,i+block));
+plaintext+=" ";
+}
+return plaintext;
+}
+}
+class HillCipher
+{
+public static void main(String args[])
+{
+String plaintext,ciphertext;
+int block;
+Scanner scn=new Scanner(System.in);
+System.out.println("Enter plain-text:");
+plaintext=scn.nextLine();
+System.out.println("Enter block size of matrix:");
+block=scn.nextInt();
+Hill hill=new Hill(block);
+plaintext=plaintext.replaceAll(" ", "");
+ciphertext= hill.encrypt(plaintext);
+System.out.println("Encrypted Text is:\n"+ciphertext);
+String decryptedtext= hill.Decrypt(ciphertext);
+System.out.println("Decrypted Text is:\n"+decryptedtext);
+}
+}
+14 | Page
+OUTPUT:
+C:\javaprg>javac HillCipher.java
+C:\javaprg>java HillCipher
+Enter plain-text:
+meet
+Enter block size of matrix:
+2
+Enter key Matrix (It should be inversible)
+3 1
+5 2
+Encrypted Text is:
+OQ FG
+Enter key Inverse Matrix:
+2 -1
+-5 3
+Decrypted Text is:
+ME ET
+RESULT:
+Thus the program to encrypt a plain text and decrypt a cipher text using Hill Cipher
+substitution technique was executed successfully and the output was verified.
+15 | Page
+EX.No.:1(d) VIGENERE CIPHER
+AIM:
+To write a JAVA a program for encryption and decryption using Vigenere Cipher substitution
+technique.
+ALGORITHM:
+1. Start
+2. The Vigenere cipher is a method of encrypting alphabetic text by using a series of different
+Caesar ciphers based on the letters of a keyword.
+3. To encrypt, a table of alphabets can be used, termed a Vigenere square, or Vigenere table.
+4. It consists of the alphabet written out 26 times in different rows, each alphabet shifted
+cyclically to the left compared to the previous alphabet, corresponding to the 26 possible
+Caesar ciphers.
+5. At different points in the encryption process, the cipher uses a different alphabet from one of
+the rows used.
+6. The alphabet at each point depends on a repeating keyword.
+7. Stop.
+PROGRAM:
+import java.util.Scanner;
+public class VigenereCipher
+{
+public static String encrypt(String text, final String key)
+{
+String res = "";
+text = text.toUpperCase();
+for (int i = 0, j = 0; i < text.length(); i++)
+{
+char c = text.charAt(i);
+if (c < 'A' || c > 'Z')
+continue;
+res += (char) ((c + key.charAt(j) - 2 * 'A') % 26 + 'A');
+j = ++j % key.length();
+}
+return res;
+}
+16 | Page
+public static String decrypt(String text, final String key)
+{
+String res = "";
+text = text.toUpperCase();
+for (int i = 0, j = 0; i < text.length(); i++)
+{
+char c = text.charAt(i);
+if (c < 'A' || c > 'Z')
+continue;
+res += (char) ((c - key.charAt(j) + 26) % 26 + 'A');
+j = ++j % key.length();
+}
+return res;
+}
+public static void main(String[] args)
+{
+Scanner sc=new Scanner(System.in);
+System.out.println("Enter the key : ");
+String key=sc.nextLine();
+System.out.println("Enter the message for encryption : ");
+String message=sc.nextLine();
+String encryptedMsg = encrypt(message, key);
+System.out.println("Plain Text: " + message);
+System.out.println("Encrypted message (Cipher Text): " + encryptedMsg);
+System.out.println("Decrypted message (Plain Text): " + decrypt(encryptedMsg, key));
+}
+}
+OUTPUT:
+C:\javaprg>java VigenereCipher
+Enter the key: WHITE
+Enter the message for encryption : DIVERT TROOPS TO EAST RIDGE
+Plain Text: DIVERTTROOPSTOEASTRIDGE
+Encrypted message (Cipher Text): ZPDXVPAZHSLZBHIWZBKMZNM
+Decrypted message (Plain Text): DIVERTTROOPSTOEASTRIDGE
+RESULT:
+Thus the program to encrypt a plain text and decrypt a cipher text using Viginere Cipher
+substitution technique was executed successfully and the output was verified.
+17 | Page
+EX.No.:1(e) RAIL FENCE CIPHER
+AIM:
+To write a JAVA program for encryption and decryption using Rail fence transposition
+technique.
+ALGORITHM:
+1. Start
+2. The Plaintext is written down as a sequence of diagonals and then read off as a sequence of
+rows.
+3. When we reach the top rail, the message is written downwards again until the whole plaintext
+is written out.
+4. The message is then read off in rows.
+5. Stop.
+PROGRAM:
+// File Name: RailFence.java
+import java.util.*;
+class RailFenceBasic
+{
+int depth;
+String Encryption(String plainText,int depth)
+{
+int r=depth,len=plainText.length();
+int c=len/depth;
+char mat[][]=new char[r][c];
+int k=0;
+String cipherText="";
+for(int i=0;i< c;i++)
+{
+for(int j=0;j< r;j++)
+{
+if(k!=len)
+mat[j][i]=plainText.charAt(k++);
+else
+mat[j][i]='X';
+}
+}
+for(int i=0;i< r;i++)
+{
+for(int j=0;j< c;j++)
+{
+cipherText+=mat[i][j];
+}
+}
+return cipherText;
+}
+18 | Page
+String Decryption(String cipherText,int depth)
+{
+int r=depth,len=cipherText.length();
+int c=len/depth;
+char mat[][]=new char[r][c];
+int k=0;
+String plainText="";
+for(int i=0;i< r;i++)
+{
+for(int j=0;j< c;j++)
+{
+mat[i][j]=cipherText.charAt(k++);
+}
+}
+for(int i=0;i< c;i++)
+{
+for(int j=0;j< r;j++)
+{
+plainText+=mat[j][i];
+}
+}
+return plainText;
+}
+}
+class RailFence{
+public static void main(String args[])
+{
+RailFenceBasic rf=new RailFenceBasic();
+Scanner scn=new Scanner(System.in);
+int depth;
+String plainText,cipherText,decryptedText;
+System.out.println("Enter plain text:");
+plainText=scn.nextLine();
+System.out.println("Enter depth for Encryption:");
+depth=scn.nextInt();
+cipherText=rf.Encryption(plainText,depth);
+System.out.println("Encrypted text is:\n"+cipherText);
+decryptedText=rf.Decryption(cipherText, depth);
+System.out.println("Decrypted text is:\n"+decryptedText);
+}
+}
+19 | Page
+OUTPUT:
+Enter plain text: DIVERT TROOPS TO EAST RIDGE
+Enter depth for Encryption: 3
+Encrypted text is: DE OSOA DIRTO SRGVTRPTETIE
+Decrypted text is: DIVERT TROOPS TO EAST RIDGE
+D E T O T A R G
+I R R P O S I E
+V T O S E T D
+RESULT:
+Thus the program to encrypt a plain text and decrypt a cipher text using Rail fence
+transposition technique was executed successfully and the output was verified.
+20 | Page
+EX.No.:2(a) DATA ENCRYPTION STANDARD (DES)
+AIM:
+To develop a JAVA program to implement Data Encryption Standard for encryption and
+decryption.
+ALGORITHM:
+1. Start
+2. DES is an implementation of a Feistel Cipher. It uses 16 round Feistel structure. The block
+size is 64-bit.
+3. DES algorithm is designed to encipher and decipher blocks of data consisting of 64 bits
+under control of a 64-bit key. Though, key length is 64-bit, DES has an effective key length of
+56 bits, since 8 of the 64 bits of the key are not used by the encryption algorithm.
+4. A block to be enciphered is subjected to an initial permutation IP and then to a complex
+key-dependent 16 rounds of computation and finally to a permutation which is the inverse of
+the initial permutation IP-1.
+5. Permutation is an operation performed by a function, which moves an element at place ‘i'
+to the place ‘j’.
+6. Stop
+General Structure of DES
+21 | Page
+PROGRAM:
+import javax.swing.*;
+import java.security.SecureRandom;
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Random;
+class DES
+{
+byte[] skey = new byte[1000];
+String skeyString;
+static byte[] raw;
+String inputMessage,encryptedData,decryptedMessage;
+public DES()
+{
+try
+{
+generateSymmetricKey();
+inputMessage=JOptionPane.showInputDialog(null," Enter message to encrypt");
+byte[] ibyte = inputMessage.getBytes();
+byte[] ebyte=encrypt(raw, ibyte);
+String encryptedData = new String(ebyte);
+System.out.println("Encrypted message "+encryptedData);
+JOptionPane.showMessageDialog(null,"Encrypted Data "+"\n"+encryptedData);
+byte[] dbyte= decrypt(raw,ebyte);
+String decryptedMessage = new String(dbyte);
+System.out.println("Decrypted message "+decryptedMessage);
+JOptionPane.showMessageDialog(null,"Decrypted Data "+"\n"+decryptedMessage);
+}
+catch(Throwable e)
+{
+System.out.println(e);
+}
+}
+void generateSymmetricKey()
+{
+try
+{
+Random r = new Random();
+int num = r.nextInt(10000);
+String knum = String.valueOf(num);
+byte[] knumb = knum.getBytes();
+22 | Page
+skey=getRawKey(knumb);
+skeyString = new String(skey);
+System.out.println("DES Symmetric key = "+skeyString);
+}
+catch(Throwable e)
+{
+System.out.println(e);
+}
+}
+private static byte[] getRawKey(byte[] seed) throws Throwable
+{
+KeyGenerator kgen = KeyGenerator.getInstance("DES");
+SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+sr.setSeed(seed);
+kgen.init(56, sr);
+SecretKey skey = kgen.generateKey();
+raw = skey.getEncoded();
+return raw;
+}
+private static byte[] encrypt(byte[] raw, byte[] clear) throws Throwable
+{
+SecretKeySpec skeySpec = new SecretKeySpec(raw, "DES");
+Cipher cipher = Cipher.getInstance("DES");
+cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
+byte[] encrypted = cipher.doFinal(clear);
+return encrypted;
+}
+private static byte[] decrypt(byte[] raw, byte[] encrypted) throws Throwable
+{
+SecretKeySpec skeySpec = new SecretKeySpec(raw, "DES");
+Cipher cipher = Cipher.getInstance("DES");
+cipher.init(Cipher.DECRYPT_MODE, skeySpec);
+byte[] decrypted = cipher.doFinal(encrypted);
+return decrypted;
+}
+public static void main(String args[])
+{
+DES des = new DES();
+}
+}
+23 | Page
+OUTPUT:
+C:\javaprg>javac DES.java
+C:\javaprg>java DES
+Note:
+• SHA1PRNG is a Pseudo Random Number Generator (PRNG). It uses the SHA1 hash
+function to generate a stream of random numbers.
+• PRNG's are deterministic. That means that they generate the same stream from the same input
+material (seed).
+RESULT:
+Thus the program to encrypt a plain text and decrypt a cipher text using DES
+algorithm was executed successfully and the output was verified.
+24 | Page
+EX.No.:2(b) RSA ALGORITHM
+AIM:
+To write a JAVA program to implement RSA algorithm for encryption and decryption.
+ALGORITHM:
+1. Start
+2. Generation of RSA Key Pair: Each person or a party who desires to participate in
+communication using encryption needs to generate a pair of keys, namely public key and
+private key.
+3. The process followed in the generation of keys is described below:
+4. Generate the RSA modulus (n)
+(i) Select two large primes, p and q.
+(ii) Calculate n=p*q. For strong unbreakable encryption, let n be a large number, typically a
+minimum of 512 bits.
+5. Find Derived Number (e)
+(i) Number e must be greater than 1 and less than (p - 1)(q - 1).
+(ii) There must be no common factor for e and (p - 1)(q - 1) except for 1. In other words two
+numbers e and (p – 1)(q – 1) are coprime.
+6. Form the public key
+(i) The pair of numbers (n, e) form the RSA public key and is made public.
+(ii) Interestingly, though n is part of the public key, difficulty in factorizing a large prime
+number ensures that attacker cannot find in finite time the two primes (p & q) used to
+obtain n. This is strength of RSA.
+7. Generate the private key
+(i) Private Key d is calculated from p, q, and e. For given n and e, there is unique number d.
+(ii) Number d is the inverse of e modulo (p - 1)(q – 1). This means that d is the number less
+than (p - 1)(q - 1) such that when multiplied by e, it is equal to 1 modulo (p - 1)(q - 1).
+8. This relationship is written mathematically as follows ed = 1 mod (p - 1)(q - 1)
+9. The Extended Euclidean Algorithm takes p, q, and e as input and gives d as output.
+10. Stop
+PROGHRAM:
+import java.math.BigInteger;
+import java.util.Random;
+import java.io.*;
+public class RSA
+{
+private BigInteger p;
+private BigInteger q;
+private BigInteger n;
+private BigInteger phi;
+private BigInteger e;
+private BigInteger d;
+private int bitlength = 1024;
+private int blocksize = 256; //block size in byte
+private Random r;
+25 | Page
+public RSA()
+{
+r = new Random();
+p = BigInteger.probablePrime(bitlength, r);
+q = BigInteger.probablePrime(bitlength, r);
+n = p.multiply(q);
+phi = p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE));
+e = BigInteger.probablePrime(bitlength/2, r);
+while (phi.gcd(e).compareTo(BigInteger.ONE) > 0 && e.compareTo(phi) < 0 )
+{
+e.add(BigInteger.ONE);
+}
+d = e.modInverse(phi);
+}
+public RSA(BigInteger e, BigInteger d, BigInteger n)
+{
+this.e = e;
+this.d = d;
+this.n = n;
+}
+public static void main (String[] args) throws IOException
+{
+RSA rsa = new RSA();
+DataInputStream in=new DataInputStream(System.in);
+String teststring ;
+System.out.println("Enter the plain text:");
+teststring=in.readLine();
+System.out.println("Encrypting String: " + teststring);
+System.out.println("String in Bytes: " + bytesToString(teststring.getBytes()));
+byte[] encrypted = rsa.encrypt(teststring.getBytes()); // calling encrypt method
+System.out.println("Encrypted String in Bytes: " + bytesToString(encrypted));
+byte[] decrypted = rsa.decrypt(encrypted); // calling decrypt method
+System.out.println("Decrypted String in Bytes: " + bytesToString(decrypted));
+System.out.println("Decrypted String: " + new String(decrypted));
+}
+private static String bytesToString(byte[] encrypted)
+{
+String test = "";
+for (byte b : encrypted)
+{
+test += Byte.toString(b);
+}
+return test;
+}
+26 | Page
+public byte[] encrypt(byte[] message) //Encrypt message
+{
+return (new BigInteger(message)).modPow(e, n).toByteArray();
+}
+public byte[] decrypt(byte[] message) // Decrypt message
+{
+return (new BigInteger(message)).modPow(d, n).toByteArray();
+}
+}
+OUTPUT:
+C:\javaprg>javac RSA.java
+C:\javaprg>java RSA
+Enter the plain text: The pen is mightier than the sword
+Encrypting String: The pen is mightier than the sword
+String in Bytes: 841041013211210111032105115321091051031041161051011143211610497
+1103211610410132115119111114100
+Encrypted String in Bytes: 73-666-828080-114466810642-95-91797-115-63114-62-7665
+66119-36-33-45-4757-6060-8015-92-11758-3-4107-116-4812286-910430-4417-27-60111-1
+811666-646192-12-27825289-4-5610676-58-69-98-321249975-5363104-18-12-102751338-1
+8-21-8212740-47-84-82-108-453134-83-75-221092799845392-94101-2011717105123-92127
+-74-120-71120-111-75-59-4244-107-3216-74-35-114-265-98-1021237-38-5358-49-1524-3
+7-2-74-111-278-773022-9912746-126101-81-8-7295-8527-57-523-91102-8271-5711295-11
+39689-76604648-8957-194024124122-65107-115-2811526-4066835835-121-3397-771372-40
+-45-3-46-5356-74-467257-7093-3546101-1068-37-71-48-120-119-1161226511554-7119-71
+011210456-3-722497-7175-2689-36101-99-8027-50-45-99-33-22-101-578-112
+Decrypted String in Bytes: 84104101321121011103210511532109105103104116105101114
+32116104971103211610410132115119111114100
+Decrypted String: The pen is mightier than the sword
+RESULT:
+Thus the program to encrypt a plain text and decrypt a cipher text using RSA
+algorithm was executed successfully and the output was verified.
+27 | Page
+EX.No.:2(c) DIFFIEE-HELLMAN KEY EXCHANGE ALGORITHM
+AIM:
+To write a JAVA program to implement Diffie-Hellman Key Exchange Algorithm for
+exchanging cryptographic keys over a public channel,
+ALGORITHM
+STEP 1: Start
+STEP 2: Alice and Bob exchange their public keys PA and PB.
+STEP 3: Alice computes F(SA , PB)
+STEP 4: Bob computes F(SB, PA)
+STEP 5: The special property of the public key cipher system, and the choice of the function F,
+are such that F(SA , PB) = F(SB, PA). If this is the case then Alice and Bob now share a secret.
+STEP 6: This shared secret can easily be converted by some public means into a bitstring suitable
+for use as, for example, a DES key.
+STEP 7: The system parameters (which are public) are:
+- a large prime number ‘p’ – typically 1024 bits in length.
+- a primitive element ‘g’.
+STEP 8: Meanwhile Bob generates a private random value b, calculates gb (mod p) and sends it to
+Alice.
+- Alice takes gb and her private random value a to compute (gb)a = gab(mod p).
+- Bob takes ga and his private random value b to compute (ga)b = gab (mod p).
+- Alice and Bob adopt gab (mod p) as the shared secret.
+STEP 9: Stop.
+PROGRAM:
+import java.io.*;
+import java.math.BigInteger;
+class DiffieHellman
+{
+public static void main(String[]args) throws IOException
+{
+BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+System.out.print("Enter a prime number: ");
+BigInteger p=new BigInteger(br.readLine());
+System.out.print("Enter primitive root of "+ p +": ");
+BigInteger g=new BigInteger(br.readLine());
+System.out.print("Enter value for x less than "+ p +": ");
+BigInteger x=new BigInteger(br.readLine());
+BigInteger R1=g.modPow(x,p);
+System.out.println("R1= "+ R1);
+28 | Page
+System.out.print("Enter value for y less than "+ p +": ");
+BigInteger y=new BigInteger(br.readLine());
+BigInteger R2=g.modPow(y,p);
+System.out.println("R2= "+ R2);
+BigInteger k1=R2.modPow(x,p);
+System.out.println("Key calculated at Alice's side: "+ k1);
+BigInteger k2=R1.modPow(y,p);
+System.out.println("Key calculated at Bob's side: "+ k2);
+System.out.println("Deffie-Hellman Secret Key Encryption is done...");
+}
+}
+OUTPUT:
+C:\javaprg>javac DiffieHellman.java
+C:\javaprg>java DiffieHellman
+Enter a prime number: 11
+Enter primitive root of 11: 7
+Enter value for x less than 11: 3
+R1= 2
+Enter value for y less than 11: 6
+R2= 4
+Key calculated at Alice's side: 9
+Key calculated at Bob's side: 9
+Deffie-Hellman Secret Key Encryption is done...
+DIFFIE–HELLMAN KEY EXCHANGE ALGORITHM DESCRIPTION:
+• Diffie–Hellman key exchange (D-H) is a specific method of securely exchanging
+cryptographic keys over a public channel and was one of the first public-key protocols.
+• The Diffie–Hellman key exchange method allows two parties that have no prior knowledge of
+each other to jointly establish a shared secret key over an insecure channel.
+• This key can then be used to encrypt subsequent communications using a symmetric key
+cipher.
+RESULT:
+Thus the program to implement Diffie-Hellman Key Exchange Algorithm for
+exchanging cryptographic keys over a public channel was executed successfully and the output was
+verified.
+29 | Page
+EX.No.: 2(d) IMPLEMENT MESSAGE DIGEST ALGORITHM (MD5)
+AIM:
+To write a JAVA program to Message Digest Algorithm for encryption.
+ALGORITHM:
+STEP 1: Start.
+STEP 2: For a ‘b-bit’ message as input, need to find its message digest.
+STEP 3: Append padded bits:
+– The message is padded so that its length is congruent to 448, modulo 512.
+– A single “1” bit is appended to the message, and then “0” bits are appended so that the
+length in bits equals 448 modulo 512.
+STEP 4: Append length:
+– A 64 bit representation of ‘b’ is appended to the result of the previous step.
+– The resulting message has a length that is an exact multiple of 512 bits.
+STEP 5: Initialize MD Buffer
+–A four-word buffer (A,B,C,D) is used to compute the message digest.
+– Here each of A,B,C,D, is a 32 bit register. These registers are initialized to the following
+values in hexadecimal:
+Word A: 01 23 45 67
+Word B: 89 ab cd ef
+Word C: fe dc ba 98
+Word D: 76 54 32 10
+STEP 6: Stop
+PROGRAM:
+import java.io.*;
+import java.util.Scanner;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+public class MD5
+{
+public static void main(String[] args)
+{
+Scanner sc=new Scanner(System.in);
+System.out.print("Enter a string/number/null: ");
+String msg=sc.nextLine();
+System.out.println("For the string "+ msg + " the Hash value: " + md5(msg));
+}
+30 | Page
+public static String md5(String input)
+{
+String md5 = null;
+if(null == input) return null;
+try
+{
+MessageDigest digest = MessageDigest.getInstance("MD5"); // Create MessageDigest object for MD5
+digest.update(input.getBytes(), 0, input.length()); // Update input string in message digest
+md5 = new BigInteger(1, digest.digest()).toString(16); // Converts message digest value in the
+} base 16 (hex) i.e. 128 bits
+catch (NoSuchAlgorithmException e)
+{
+e.printStackTrace();
+}
+return md5;
+}
+}
+OUTPUT:
+C:\javaprg>javac MD5.java
+C:\javaprg>java MD5
+Enter a string/number: hello world
+For the string hello world the Hash value: 5eb63bbbe01eeed093cb22bb8f5acdc3
+C:\javaprg>java MD5
+Enter a string/number: 12345
+For the string 12345 the Hash value: 827ccb0eea8a706c4c34a16891f84e7b
+C:\javaprg>java MD5
+Enter a string/number: (for null value press enter key)
+For the string (null) the Hash value: d41d8cd98f00b204e9800998ecf8427e
+ALGORITHM DESCRIPTION:
+• The MD5 message-digest algorithm is a widely used cryptographic hash function
+producing a 128-bit (16-byte) hash value, typically expressed in text format as a 32-digit
+hexadecimal number.
+• MD5 has been utilized in a wide variety of cryptographic applications and is also commonly
+used to verify data integrity
+RESULT:
+Thus the program to implement the MD5 Algorithm was executed successfully and the
+output was verified.
+31 | Page
+EX.No.: 2(e) IMPLEMENT SECURE HASH FUNCTION (SHA-1)
+AIM:
+To write a JAVA program to implement Secure Hash Algorithm (SHA-1)
+ALGORITHM:
+STEP 1: Start.
+STEP 2: Appending Padding Bits: The original message is "padded" (extended) so that its length
+(in bits) is congruent to 448, modulo 512. The padding rules are:
+• The original message is always padded with one bit "1" first.
+• Then zero or more bits "0" are padded to bring the length of the message up to 64 bits
+fewer than a multiple of 512.
+STEP 3: Appending Length: 64 bits are appended to the end of the padded message to indicate the
+length of the original message in bytes. The rules of appending length are:
+• The length of the original message in bytes is converted to its binary format of 64 bits. If
+overflow happens, only the low-order 64 bits are used.
+• Break the 64-bit length into 2 words (32 bits each).
+• The low-order word is appended first and followed by the high-order word.
+STEP 4: Preparing Processing Functions: SHA1 requires 80 processing functions defined as:
+f(t;B,C,D) = (B AND C) OR ((NOT B) AND D) ( 0 <= t <= 19)
+f(t;B,C,D) = B XOR C XOR D (20 <= t <= 39)
+f(t;B,C,D) = (B AND C) OR (B AND D) OR (C AND D) (40 <= t <= 59)
+f(t;B,C,D) = B XOR C XOR D (60 <= t <= 79)
+STEP 5: Preparing Processing Constants: SHA1 requires 80 processing constant words defined as:
+K(t) = 0x5A827999 ( 0 <= t <= 19)
+K(t) = 0x6ED9EBA1 (20 <= t <= 39)
+K(t) = 0x8F1BBCDC (40 <= t <= 59)
+K(t) = 0xCA62C1D6 (60 <= t <= 79)
+STEP 6: Initializing Buffers: SHA1 requires 160 bits or 5 buffers of words (32 bits) defined as:
+H0 = 0x67452301
+H1 = 0xEFCDAB89
+H2 = 0x98BADCFE
+H3 = 0x10325476
+H4 = 0xC3D2E1F0
+STEP 7: Processing Message in 512-bit Blocks: This is the main task of SHA1 algorithm, which
+loops through the padded and appended message in blocks of 512 bits each. For each input block,
+a number of operations are performed.
+Output: H0, H1, H2, H3, H4, H5:
+STEP 8: Stop
+32 | Page
+PROGRAM:
+import java.io.*;
+import java.util.Scanner;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+public class SHA1
+{
+public static void main(String[] args)
+{
+Scanner sc=new Scanner(System.in);
+System.out.print("Enter a string/number/null: ");
+String msg=sc.nextLine();
+System.out.println("For the string "+ msg + " the SHA-1 Hash value: " + sha1(msg));
+}
+public static String sha1(String input)
+{
+String sha1 = null;
+if(null == input) return null;
+try
+{
+MessageDigest digest = MessageDigest.getInstance("SHA1"); //Create MessageDigest object for SHA-1
+System.out.println("Message digest object info: ");
+System.out.println(" Algorithm = " + digest.getAlgorithm());
+System.out.println(" Provider = " + digest.getProvider());
+digest.update(input.getBytes(), 0, input.length()); //Update input string in message digest
+sha1 = new BigInteger(1, digest.digest()).toString(16); //Converts message digest value in base
+} 16 (hex) i.e. 128 bits
+catch (NoSuchAlgorithmException e)
+{
+e.printStackTrace();
+}
+return sha1;
+}
+}
+33 | Page
+OUTPUT:
+C:\javaprg>java SHA1
+Enter a string/number/null: hello world
+Message digest object info:
+Algorithm = SHA1
+Provider = SUN version 1.7
+For the string hello world the SHA-1 Hash value: 2aae6c35c94fcfb415dbe95f408b9ce91ee846ed
+C:\javaprg>java SHA1
+Enter a string/number/null:
+Message digest object info:
+Algorithm = SHA1
+Provider = SUN version 1.7
+For the string the SHA-1 Hash value: da39a3ee5e6b4b0d3255bfef95601890afd80709
+RESULT:
+Thus the program to implement the SHA-1 algorithm was executed successfully and
+the output was verified.
+34 | Page
+EX.No.: 3 IMPLEMENT DIGITAL SIGNATURE STANDARD SCHEME
+AIM:
+To write a JAVA program to implement the Digital Signature Standard scheme.
+ALGORITHM:
+Signing:
+Verifying:
+Correctness of the Algorithm
+35 | Page
+PROGRAM:
+import java.util.*;
+import java.math.BigInteger;
+class DSS
+{
+final static BigInteger one = new BigInteger("1");
+final static BigInteger zero = new BigInteger("0");
+/* incrementally tries for next prime */
+public static BigInteger getNextPrime(String ans)
+{
+BigInteger test = new BigInteger(ans);
+while (!test.isProbablePrime(99))
+{
+test = test.add(one);
+}
+return test;
+}
+/* finds largest prime factor of n */
+public static BigInteger findQ(BigInteger n)
+{
+BigInteger start = new BigInteger("2"); while (!n.isProbablePrime(99))
+{
+while (!((n.mod(start)).equals(zero)))
+{
+start = start.add(one);
+}
+n = n.divide(start);
+}
+return n;
+}
+/* finds a generator mod p */
+public static BigInteger getGen(BigInteger p, BigInteger q, Random r)
+{
+BigInteger h = new BigInteger(p.bitLength(), r);
+h = h.mod(p);
+return h.modPow((p.subtract(one)).divide(q), p);
+}
+public static void main (String[] args) throws java.lang.Exception
+{
+Random randObj = new Random();
+/* establish the global public key components */
+BigInteger p = getNextPrime("10600");
+/* approximate prime */
+BigInteger q = findQ(p.subtract(one));
+BigInteger g = getGen(p,q,randObj);
+36 | Page
+/* public key components */
+System.out.println("Simulation of Digital Signature Algorithm");
+System.out.println("Global public key components are:");
+System.out.println("p is: " + p);
+System.out.println("q is: " + q);
+System.out.println("g is: " + g);
+/* find the private key */
+BigInteger x = new BigInteger(q.bitLength(), randObj);
+x = x.mod(q);
+/* corresponding public key */
+BigInteger y = g.modPow(x,p);
+/* random value message */
+BigInteger k = new BigInteger(q.bitLength(), randObj);
+k = k.mod(q);
+/* randomly generated hash value and digital signature */
+BigInteger r = (g.modPow(k,p)).mod(q);
+BigInteger hashVal = new BigInteger(p.bitLength(), randObj);
+BigInteger kInv = k.modInverse(q);
+BigInteger s = kInv.multiply(hashVal.add(x.multiply(r)));
+s = s.mod(q);
+/* secret information */
+System.out.println("Secret information are:");
+System.out.println("x (private) is: " + x);
+System.out.println("k (secret) is: " + k);
+System.out.println("y (public) is: " + y);
+System.out.println("h (rndhash) is: " + hashVal);
+System.out.println("Generating Digital signature:");
+System.out.println("r is : " + r);
+System.out.println("s is : " + s);
+/* verify the digital signature */
+BigInteger w = s.modInverse(q);
+BigInteger u1 = (hashVal.multiply(w)).mod(q);
+BigInteger u2 = (r.multiply(w)).mod(q);
+BigInteger v = (g.modPow(u1,p)).multiply(y.modPow(u2,p));
+v = (v.mod(p)).mod(q);
+System.out.println("verifying digital signature (checkpoints):");
+System.out.println("w is : " + w);
+System.out.println("u1 is : " + u1);
+System.out.println("u2 is : " + u2);
+System.out.println("v is : " + v);
+if (v.equals(r))
+{
+System.out.println("Success: Digital signature is verified! " + r);
+}
+else
+{
+System.out.println("Error: Incorrect Digital signature");
+}
+}
+}
+37 | Page
+OUTPUT:
+C:\javaprg>javac DSS.java
+C:\javaprg>java DSS
+Simulation of Digital Signature Algorithm
+Global public key components are:
+p is: 10601
+q is: 53
+g is: 4763
+Secret information are:
+x (private) is: 33
+k (secret) is: 30
+y (public) is: 6965
+h (rndhash) is: 13010
+Generating Digital signature:
+r is : 48
+s is : 13
+verifying digital signature (checkpoints):
+w is : 49
+u1 is : 6
+u2 is : 20
+v is : 48
+Success: Digital signature is verified! 48
+RESULT:
+Thus the program to implement the DSS Algorithm was executed successfully and the
+output was verified.
+38 | Page
+EX.No.: 4
+DEMONSTRATE HOW TO PROVIDE SECURE DATA STORAGE,
+SECURE DATA TRANSMISSION AND FOR CREATING
+DIGITAL SIGNATURES (GnuPG)
+AIM:
+To Demonstrate how to provide secure data storage, secure data transmission and for creating
+Digital signatures using GnuPG security tool.
+INTRODUCTION:
+• GPG, or GNU Privacy Guard, is a public key cryptography implementation. This allows for
+the secure transmission of information between parties and can be used to verify that the
+origin of a message is genuine.
+• GPG relies on a security concept known as public key encryption. The idea is that you can
+split the encrypting and decrypting stages of the transmission into two separate pieces. That
+way, you can freely distribute the encrypting portion, as long as you secure the decrypting
+portion.
+• This would allow for a one-way message transfer that can be created and encrypted by
+anyone, but only be decrypted by the designated user (the one with the private decrypting
+key). If both of the parties create public/private key pairs and give each other their public
+encrypting keys, they can both encrypt messages to each other. So in this scenario, each party
+has their own private key and the other user's public key.
+• Another benefit of this system is that the sender of a message can "sign" the message with
+their private key. The public key that the receiver has can be used to verify that the signature
+is actually being sent by the indicated user.
+• This can prevent a third-party from "spoofing" the identity of someone. It also helps to ensure
+that the message was transmitted in-full, without damage or file corruption.
+• Using GPG correctly can help you secure your communications with different people. This is
+extremely helpful, especially when dealing with sensitive information, but also when dealing
+with regular, every day messaging.
+• Because of the way that certain encrypted communications can be flagged by monitoring
+programs, it is recommended to use encryption for everything, not just "secret" data. That will
+make it more difficult for people to know when you are sending important data.
+39 | Page
+GPG4WIN INSTALLATION:
+PART-1: Installing the Software:
+1. Go to the URL https://gpg4win.org/download.html to download, and click ‘Gpg4win 2.3.4’.
+2. Save it, and open it when it’s done downloading.
+Confirm your language selection with [ OK ].
+Afterwards the following welcome dialog box will appear:
+40 | Page
+The next page displays the licensing agreement – it is only important if you wish to modify or
+forward Gpg4win. If you only want to use the software, you can do this right away – without reading
+the license.
+3. Click ‘Next’. You’ll now be at a screen asking what components you want to install. On
+the page that contains the selection of components you can decide which programs you
+want to install. Select ‘Kleopatra’, ‘GpgEX’, and ‘Gpg4win Compendium’. Then click
+‘Next’.
+Moving your mouse cursor over a component will display a brief description. Another useful
+feature is the display of required hard drive space for all selected components.
+4. It will ask where to install, just keep the default and click ‘Next’.
+5. Now it’ll ask where you want to install shortcuts. Select whichever you want, click
+‘Next’.
+6. You can choose which Start Menu folder you want it installed in, just click ‘Next’.
+7. It will now install, when done you should see this. Click ‘Next’, then ‘Finish’.
+41 | Page
+8. The last page of the installation process is shown once the installation has been
+successfully completed:
+You have the option of displaying the README file, which contains important information on the
+Gpg4win version you have just installed. If you do not wish to view this file, deactivate this option.
+Then click on [ Finish ].
+42 | Page
+PART-2: Generating your keypair:
+The next step is to generate your keypair so you can encrypt/decrypt messages. Like always, we’ll be
+going with 4096 bit RSA.
+You will see the main Kleopatra screen – the certificate administration:
+1. Open up Kleopatra, you should be greeted with this screen.
+2. Go to ‘File’, then ‘New Certificate…’
+43 | Page
+3. The Certificate Creation Wizard should pop up, click on ‘Create a personal OpenPGP key
+pair’.
+4. Now enter your e-mail address and your name in the following window. Name and e-mail
+address will be made publicly visible later. You don’t need to use a real email. You also have
+the option of adding a comment for the key pair. Usually this field stays empty, but if you are
+creating a key for test purposes, you should enter "test" so you do not forget it is a test key.
+This comment becomes part of your login name, and will become public just like your name
+and e-mail address.
+5. Do not click ‘Next’, we need to fill out some more details. Click ‘Advanced Settings…’, and
+another window should appear. Under ‘Key Material’, make sure ‘RSA’ is checked. In the
+drop down menu beside it, and select ‘4,096 bits’. Check the picture to confirm you have
+everything set correctly, then click ‘Ok’
+44 | Page
+6. Confirm you filled out all of your info correctly, then click ‘Create Key’.
+7. Another window will pop up asking to enter a passphrase. Do so, then click ‘Ok’.
+45 | Page
+8. It will now generate your key.
+9. Your key is now created. Go ahead and click ‘Finish’.
+46 | Page
+PART-3: Obtaining your public key:
+1. Right click on your key, then click ‘Export Certificates…’
+2. Browse where you want to save, give it a name, then click ‘Save’.
+3. Open notepad text editor, browse to where the file is saved. You may have to select ‘All files’
+from the dropdown menu. Click the file you saved, then open.
+47 | Page
+4. There’s your public key.
+Remember to add your public key to your global profile so people can message you easier!
+PART-4: Obtaining your private key:
+1. Right click on your key, select ‘Export Secret Keys…’
+48 | Page
+2. Select where you want it saved, give it a name, check ‘ASCII armor’, and click ‘Ok’
+3. You now have your private key. Remember to keep this in a safe place, and never share it!
+PART-5: Importing a public key:
+1. Find a public key you want to import
+2. Copy everything from ‘—–BEGIN PGP PUBLIC KEY BLOCK—–‘ to ‘—–END PGP
+PUBLIC KEY BLOCK—‘, see the picture for an example.
+49 | Page
+3. In your task bar, right click on the Kleopatra icon, go to ‘Clipboard’, then click ‘Certificate
+Import’.
+4. If it worked, you should see a window pop up, click ‘Ok’.
+5. You should now see the imported key in Kleopatra under the ‘Other Certificates’ tab.
+50 | Page
+PART-6: Importing a private key:
+1. Go to ‘File’, then click ‘Import Certificates…’.
+2. Browse to where your private key is, select it, then click ‘Open’.
+51 | Page
+3. It will import your private key, and pop up a window to confirm. Click ‘Ok’.
+4. You should now see your key information under the ‘My Certificates’ tab.
+PART-7: Encrypting a message:
+Now that we’re ready to go, lets go ahead and send a message.
+1. Open up your text editor of choice
+2. Type out your message, select it all, and copy it.
+52 | Page
+3. In your task bar, right click on the Kleopatra icon, go to ‘Clipboard’, then click ‘Encrypt…’.
+4. This gorgeous window will open. Click ‘Add Recipient…’.
+5. Another window will appear. Click the ‘Other Certificates’ tab, then select who you want to
+send your message to, then click ‘Ok’.
+53 | Page
+6. You should be back at the previous window with the recipient listed. Click ‘Next’.
+7. If all went well, you should see this window. Click ‘Ok’.
+54 | Page
+8. Your encrypted message will be in your clipboard, all you need to do is paste it into the
+message box and send.
+PART-8: Decrypting a message:
+1. Copy everything that was sent.
+2. In your task bar, right click on the Kleopatra icon, go to ‘Clipboard’, then click
+‘Decrypt/Verify…’.
+55 | Page
+3. A window will pop up asking for your passphrase, enter that then click ‘Ok’.
+4. A window should pop up verifying it was decrypted, and copied to your clipboard. Click
+‘Finish’
+5. Open your text editor of choice, and paste your message.
+RESULT:
+Thus the demonstration of creating Digital signatures using GnuPG security tool was
+implemented and the output was verified.
+56 | Page
+EX.No.: 5 SETUP A HONEY POT AND MONITOR THE HONEYPOT ON
+NETWORK
+AIM:
+Setup a HONEYPOT and monitor the HONEYPOT on network using KF Sensor Security
+tool.
+DESCRIPTION:
+HONEYPOT is a device placed on Computer Network specifically designed to capture
+malicious network traffic. KF Sensor is the tool to setup as HONEYPOT. While KF Sensor is
+running it places a siren icon in the windows system tray in the bottom right of the screen. If there are
+no alerts then green icon is displayed.
+KF Sensor:
+• Windows based Honeypot known as KF Sensor.
+• It detects an incoming attack or port scanning and reports it to you.
+• A machine running KFSensor can be treated as just another server on the network, without the
+need to make complex changes to routers and firewalls.
+How KF Sensor Works:
+• KFSensor is an Intrusion Detection System.
+• It performs by opening ports on the machine it is installed on and waiting for connections to
+be made to those ports.
+• By doing this it sets up a target, or a Honeypot server, that will record the actions of a hacker.
+Components: KFSensor server:
+• KFSensor Server- Performs core functionality.
+• It listens to both TCP and UDP ports on the server machine and interacts with visitors and
+generates events.
+• A daemon that runs at the background (like Unix daemon).
+Components: KFSensor Monitor:
+• Interprets all the data and alerts captured by server in graphical form.
+• Using it you can configure the KFSensor Server and monitor the events generated by the
+KFSensor Server.
+Setting Up a HoneyPot:
+1. Download and Install WinPcap library (mandatory for KF Sensor tool).
+2. Download KF Sensor Evaluation Setup File from KF Sensor Website.
+3. Click Next to setup wizard. Install with License Agreement and appropriate directory path.
+4. Select all port classes to include and Click Next.
+5. Enter Send email and Send from email and Click Next.
+6. Select the options such as Denial of Service[DOS], Port Activity, Proxy Emulsion, Network Port
+Analyzer, Click Next.
+7. Select Install as System service and Click Next. Click Finish. Reboot the Computer now.
+(The KF Sensor automatically starts during Windows boot.)
+57 | Page
+KF Sensor Monitor:
+The Left pane lists the VISITORS who tried or PORTS that are attacked by outsiders. The right pane
+gives brief description of the events: ID, time, Protocol, Sensor etc.
+Ports View:
+Visitor View:
+58 | Page
+Terminology
+Visitor:
+A visitor is an entity that connects to KFSensor.
+• Visitors could be hackers, worms, viruses or even legitimate users that have stumbled onto
+KFSensor by mistake.
+• Visitors can also be referred to as the clients of the services provided by KFSensor.
+Event:
+• An event is a record of an incident detected by the KFSensor Service.
+• For example, if a visitor attempts to connect to the simulated web server then an event
+detailing the connection is generated.
+• Events are recorded in the log file and displayed in the KFSensor monitor.
+FTP Emulation
+Aim: Tto interact with the FTP simulator and to see whether KFSensor server respond with correct
+information:
+Description: using telnet and we will try to establish the connection through port 21 and perform
+some function on ftp server IP 172.16.0.1.
+1. Open command prompt
+2. Type ftp ipaddress
+Enter user name anonymous
+Enter any password
+Get any file name with path
+3. Monitor this ftp access in KFSensor monitor
+4. Right click KFSensor entry, select Event details, see the details captured by the server
+5. Create visitor rule by right clicking the FTP entry and check either ignore / close under actions in
+the dialog box that opened.
+6. Now redo the above said operations at the command prompt and see how the emulation behaves.
+7. You can see/ modify the created rules in Scenario->edit active visitor rules.
+59 | Page
+Conclusion: The event was generated as the connection was closed. The FTP listener keeps track of
+the visitor information, port number, and domain. It also keep track of the username and password
+used to gain access and the various transactions made during the connection period.
+60 | Page
+SMTP Emulation
+Aim: To test the SMTP service with the real time SMTP attack. The outsider try to send the email to
+himself in order to test the server is working or not.
+1. open command prompt
+2. Type telnet ipaddress 25
+Helo
+Mail from:<mail-id>
+Rcpt to:<mail-id>
+Data
+(type contents of mail end that with . in new line)
+3. Check the kfsensor for the captured information.
+Result:
+61 | Page
+IIS emulation
+1. Create an index.html, store it in c:\Program Files\KeyFocus\KFSensor\files\iis7\wwwroot
+2. Select scenario->edit simserver.
+1. Choose iis and edit.
+2. Make sure index.html is in first place in the listed html files in the dialog box.
+3. Check the kfsensor for the captured information.
+DOS attack
+1. Settings-> DOS attack settings modify (reduce) values in general tab, ICMP and other tabs.
+Press ok.
+2. Open command prompt and type
+Ping ipaddress –t or
+Ping –l 65000 ipaddress –t
+3. Check the kfsensor for the DOS attack alerts, open event details in right click menu for further
+details.
+RESULT:
+Thus the HONEYPOT was setup and monitored the HONEYPOT on network using KF
+Sensor Security tool.
+62 | Page
+EX.No.: 6 INSTALL ROOTKITS AND STUDY VARIETY OF OPTIONS
+AIM:
+To install Rootkit and study the variety of options.
+DESCRIPTION:
+Rootkit is a stealth type of malicious software designed to hide the existence of certain process from
+normal methods of detection and enables continued privileged access to a computer. The term rootkit
+is a concatenation of "root" (the traditional name of the privileged account on Unix operating
+systems) and the word "kit" (which refers to the software components that implement the tool). The
+term "rootkit" has negative connotations through its association with malware.
+A rootkit is a collection of tools (programs) that enable administrator-level access to a computer or
+computer network. Typically, a cracker installs a rootkit on a computer after first obtaining user-level
+access, either by exploiting a known vulnerability or cracking a password. Once the rootkit is
+installed, it allows the attacker to mask intrusion and gain root or privileged access to the computer
+and, possibly, other machines on the network.
+A rootkit may consist of spyware and other programs that: monitor traffic and keystrokes; create a
+"backdoor" into the system for the hacker's use; alter log files; attack other machines on the network;
+and alter existing system tools to escape detection.
+STEPS:
+• Download Rootkit Tool from GMER website. www.gmer.net
+• Double click on the GMER rootkit application. Now the rootkit screen will be displayed.
+• This displays the Processes, Modules, Services, Files, Registry, RootKit/Malwares, Autostart,
+CMD of local host.
+• Select Processes menu and kill any unwanted process if any. Modules menu displays the
+various system files like .sys, .dll
+63 | Page
+• Services menu displays the complete services running with Autostart, Enable, Disable,
+System, Boot.
+• Files menu displays full files on Hard-Disk volumes.
+• Select anyone of the drive which is shown at right side of the screen. After selecting the drive
+click on scan button.
+• Click on the option processes the screen will be displayed
+RESULT:
+Thus the Rootkit was installed and studied the variety of options.
+64 | Page
+EX.No.: 7 PERFORM WIRELESS AUDIT ON AN ACCESS POINT OR A ROUTER
+AND DECRYPT WEP AND WPA
+AIM:
+To perform wireless audit on an access point or a router and decrypt WEP and WPA using
+NetStumbler tool.
+DESCRIPTION:
+NetStumbler (also known as Network Stumbler) is a tool for windows that facilitates detection
+of Wireless LANs using the 802.11b, 802.11a and 802.11g WLAN standards. It is one of the Wi-Fi
+hacking tool which only compatible with windows; this tool also a freeware. With this NetStumbler,
+we can search for wireless network which open and penetrate the network. It’s having some
+compatibility and network adapter issues.
+STEPS:
+• Download and install Netstumbler.
+• It is highly recommended that your PC should have Wireless network card in order to access
+wireless router.
+• Now Run NetStumbler in record mode and configure wireless card.
+• There are several indicators regarding the strength of the signal, such as GREEN indicates
+Strong, YELLOW and other color indicates a weaker signal, RED indicates a very weak and
+GREY indicates a signal loss.
+• Lock symbol with GREEN bubble indicates the Access point has encryption enabled.
+• MAC assigned to Wireless Access Point is displayed on right hand pane.
+• The next column displays the Access points Service Set Identifier[SSID] which is useful to
+crack the password.
+• To decrypt use WireShark tool by selecting Edit->preferences->IEEE 802.11
+• Enter the WEP keys as a string of hexadecimal numbers as A1B2C3D4E5
+65 | Page
+Adding Keys: Wireless Toolbar:
+• If you are using the Windows version of Wireshark and you have an AirPcap adapter you can
+add decryption keys using the wireless toolbar.
+• If the toolbar isn't visible, you can show it by selecting View->Wireless Toolbar.
+• Click on the Decryption Keys. button on the toolbar:
+• This will open the decryption key management window.
+• As shown in the window you can select between three decryption modes: None, Wireshark,
+and Driver:
+RESULT:
+Thus the wireless audit on an access point or a router was performed and decrypted the WEP
+and WPA using NetStumbler tool.
+66 | Page
+EX.No.: 8 DEMONSTRATE INTRUSION DETECTION SYSTEM (IDs) USING
+ANY TOOL (SNORT OR ANY OTHER S/W)
+AIM:
+To demonstrate intrusion detection system (ids) using SNORT tool.
+DESCRIPTION:
+Snort is an open source network intrusion detection system (NIDS) has the ability to perform
+real-time traffic analysis and packet logging on internet protocol (IP) networks. Snort performs
+protocol analysis, content searching and matching. Snort can be configured in three main modes:
+sniffer, packet logger, and network intrusion detection.
+SNORT can be configured to run in three modes:
+1. Sniffer mode
+2. Packet Logger mode
+3. Network Intrusion Detection System mode
+Sniffer mode:
+snort –v Print out the TCP/IP packets header on the screen.
+Packet Logger mode:
+snort –dev –l c:\log [create this directory in the C drive] and snort will automatically know to
+go into packet logger mode, it collects every packet it sees and places it in log directory.
+Network Intrusion Detection System mode:
+snort –d c:\log –h ipaddress/24 –c nort.conf
+This is a configuration file applies rule to each packet to decide it an action based upon the rule type
+in the file.
+WORKING WITH SNORT:
+1. Go to the web site www.snort.org/start/download
+2. Click on download option and support path to save the setup file.
+3. Double click on Snort Installation icon to run setup.
+4. Accept License agreement and Specify path for installation, then Click on Next.
+5. Install snort with or without database support.
+6. Skip the WinPcap driver installation
+7. Select all the components and Click Next.
+8. Install and Close.
+9. Add the path variable in windows environment variable by selecting new classpath.
+10. Create a path variable and point it at snort.exe variable name: path and variable value as
+c:\Snort\bin.
+11. Click OK button and then close all dialog boxes.
+67 | Page
+12. Go to command prompt and get into Snort??bin directory (C:\Snort\bin) and run Snort.exe file.
+13. Now, type the command Snort.exe –W to see how many interfaces are present in your PC.
+14. If you are having any interface(Wireless, LAN, Bluetooth etc) you can examine that by using the
+command: C:\Snort\bin> snort.exe -i 1 –v
+15. An editor window displays the complete details of packets flowing across the system, the IP
+Address of packet generator, date &Time, length of Packet, Time to live(TTL), etc at real time.
+16. By analyzing these details Intruders can be traced at real time. These details can be documents by
+using a print screen option.
+17. To stop snort press CTRL+C.
+RESULT:
+Thus the SNORT tool was installed and demonstrated the intrusion detection system (ids)
+using SNORT tool.
+68 | Page
+EX.No.: 9 ADVANCED ENCRYPTION STANDARDS
+AIM: To implement a program for encrypting a plain text and decrypting a cipher text using
+Advanced Encryption Standards
+ALGORITH DESCRIPTION:
+Encryption Process
+• Byte Substitution (SubBytes)
+• The 16 input bytes are substituted by looking up a fixed table (S-box) given in design. The
+result is in a matrix of four rows and four columns.
+Shiftrows
+Each of the four rows of the matrix is shifted to the left. Any entries that ‘fall off’ are re-inserted on
+the right side of row. Shift is carried out as follows -
+• First row is not shifted.
+• Second row is shifted one (byte) position to the left.
+• Third row is shifted two positions to the left.
+• Fourth row is shifted three positions to the left.
+• The result is a new matrix consisting of the same 16 bytes but shifted with respect to each
+other.
+MixColumns
+Each column of four bytes is now transformed using a special mathematical function. This
+function takes as input the four bytes of one column and outputs four completely new bytes, which
+replace the original column. The result is another new matrix consisting of 16 new bytes. It should be
+noted that this step is not performed in the last round.
+Addroundkey
+The 16 bytes of the matrix are now considered as 128 bits and are XORed to the 128 bits of
+the round key. If this is the last round then the output is the ciphertext. Otherwise, the resulting 128
+bits are interpreted as 16 bytes and we begin another similar round.
+Decryption Process
+The process of decryption of an AES ciphertext is similar to the encryption process in the reverse
+order. Each round consists of the four processes conducted in the reverse order -
+• Add round key
+• Mix columns
+• Shift rows
+• Byte substitution
+Since sub-processes in each round are in reverse manner, unlike for a Feistel Cipher, the encryption
+and decryption algorithms need to be separately implemented, although they are very closely related.
+OUTPUT:
+PlainText Before Encryption: AES SymmetricEncryptionDecryption
+EncryptedTextAfterEncryption:
+sY6vkQrWRg0fvRzbqSAYxepeBIXg4AySj7Xh3x4vDv8TBTkNiTfca7wW/dxiMMJl
+DecryptedTextAfterDecryption: AES SymmetricEncryptionDecryption
+RESULT: Thus the program was executed and verified successfully.
